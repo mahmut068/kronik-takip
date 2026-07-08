@@ -132,7 +132,7 @@ export default function CyberneticsPage() {
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: 'var(--text)', fontWeight: 700 }}>
-                 <span>Senkronizasyon (Beyin <-> Uzuv)</span>
+                 <span>Senkronizasyon (Beyin &lt;-&gt; Uzuv)</span>
                  <span style={{ color: syncProgress === 100 ? 'var(--success)' : 'var(--warning)' }}>%{syncProgress}</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--bg)', borderRadius: '4px', overflow: 'hidden' }}>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Mic, MicOff, FileText, CheckCircle2, AlertCircle, 
-  Stethoscope, Pill, ScrollText, StopCircle, RefreshCw
+  Stethoscope, Pill, ScrollText, StopCircle, RefreshCw, Loader2, Brain, Activity, Clock, FileAudio, ChevronRight, Play, Square, Save, Send
 } from 'lucide-react';
 
 const customCss = `
