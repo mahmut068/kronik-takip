@@ -1,0 +1,12 @@
+{
+  "lang_name": "العربية",
+  "patient_detail": {
+    "ai_call": "اتصال بالذكاء الاصطناعي",
+    "ai_call_loading": "جاري البدء...",
+    "custom_sms": "أرسل رسالة قصيرة",
+    "custom_sms_loading": "جاري الإرسال...",
+    "edit_profile": "تعديل الملف",
+    "relative_call": "اتصل بالقريب",
+    "urgent_sms": "رسالة طوارئ"
+  }
+}

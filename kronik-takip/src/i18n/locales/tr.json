@@ -1,0 +1,12 @@
+{
+  "lang_name": "Türkçe",
+  "patient_detail": {
+    "ai_call": "YZ Çağrısı Başlat",
+    "ai_call_loading": "Başlatılıyor...",
+    "custom_sms": "Özel SMS Gönder",
+    "custom_sms_loading": "Gönderiliyor...",
+    "edit_profile": "Profili Düzenle",
+    "relative_call": "Yakınını Ara",
+    "urgent_sms": "Acil SMS"
+  }
+}

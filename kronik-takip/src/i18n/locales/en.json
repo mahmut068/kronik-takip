@@ -1,0 +1,12 @@
+{
+  "lang_name": "English",
+  "patient_detail": {
+    "ai_call": "AI Voice Call",
+    "ai_call_loading": "Starting...",
+    "custom_sms": "Send SMS",
+    "custom_sms_loading": "Sending...",
+    "edit_profile": "Edit Profile",
+    "relative_call": "Call Relative",
+    "urgent_sms": "Urgent SMS"
+  }
+}

@@ -1,0 +1,233 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════════════════════════
+// KULLANICI (Geniş RBAC rolleri)
+// Roller: ADMIN | DOCTOR | NURSE | DATA_ENTRY | MANAGER | INSPECTOR
+// ═══════════════════════════════════════════════════════════
+model User {
+  id                  String     @id @default(cuid())
+  name                String
+  email               String     @unique
+  password            String
+  role                String     @default("DOCTOR")
+  specialty           String?
+  department          String?    // Dahiliye, Kardiyoloji, Acil, vb.
+  phone               String?
+  isActive            Boolean    @default(true)
+
+  // Şifre politikası
+  passwordChangedAt   DateTime   @default(now())
+  mustChangePassword  Boolean    @default(false)
+
+  // Hesap kilitleme (5 başarısız giriş)
+  loginAttempts       Int        @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  lastLoginIp         String?
+
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  patients            Patient[]
+  alerts              Alert[]
+  auditLogs           AuditLog[]
+}
+
+// ═══════════════════════════════════════════════════════════
+// HASTA (TC Kimlik eklendi)
+// ═══════════════════════════════════════════════════════════
+model Patient {
+  id             String            @id @default(cuid())
+
+  // Türkiye zorunlu alanları
+  tcKimlik       String?           // TC Kimlik No (şifrelenmiş saklanır)
+  name           String
+  phone          String
+  birthDate      String?
+  gender         String?           // E | K
+
+  disease        String
+  icdCode        String?           // ICD-10 tanı kodu (ör: I10 Hipertansiyon)
+  literacyLevel  String            @default("LITERATE")
+  contactMethod  String            @default("SMS")
+  thresholdValue Float
+  thresholdLabel String            @default("ölçüm değeri")
+  isActive       Boolean           @default(true)
+  language       String            @default("tr")
+  notes          String?
+
+  // SGK bilgisi
+  sgkNo          String?
+  hospitalCode   String?           // Hangi hastaneye bağlı
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  doctor         User              @relation(fields: [doctorId], references: [id])
+  doctorId       String
+
+  questionSets   QuestionSet[]
+  responses      PatientResponse[]
+  alerts         Alert[]
+}
+
+// ═══════════════════════════════════════════════════════════
+// SORU SETLERİ
+// ═══════════════════════════════════════════════════════════
+model QuestionSet {
+  id         String     @id @default(cuid())
+  name       String
+  schedule   String     @default("09:00")
+  days       String     @default("1,2,3,4,5,6,7")
+  isActive   Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  patient    Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId  String
+  questions  Question[]
+}
+
+model Question {
+  id            String          @id @default(cuid())
+  text          String
+  audioScript   String?
+  responseType  String          @default("NUMERIC")
+  unit          String?
+  minValue      Float?          // Geçerli aralık alt sınırı (MADDE 7)
+  maxValue      Float?          // Geçerli aralık üst sınırı (MADDE 7)
+  orderIndex    Int             @default(0)
+  isThreshold   Boolean         @default(true)
+  questionSet   QuestionSet     @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  questionSetId String
+  responses     PatientResponse[]
+}
+
+// ═══════════════════════════════════════════════════════════
+// HASTA YANITI (token doğrulama eklendi)
+// ═══════════════════════════════════════════════════════════
+model PatientResponse {
+  id             String    @id @default(cuid())
+  value          Float?
+  rawAnswer      String
+  channel        String    @default("SMS")
+  triggeredAlert Boolean   @default(false)
+  isOutOfRange   Boolean   @default(false)  // Geçersiz aralık yanıtı
+  respondedAt    DateTime  @default(now())
+  tokenUsed      String?                    // Hangi token ile doğrulandı
+
+  patient        Patient   @relation(fields: [patientId], references: [id])
+  patientId      String
+  question       Question  @relation(fields: [questionId], references: [id])
+  questionId     String
+}
+
+// ═══════════════════════════════════════════════════════════
+// ALARM
+// ═══════════════════════════════════════════════════════════
+model Alert {
+  id              String    @id @default(cuid())
+  triggerValue    Float
+  thresholdValue  Float
+  message         String
+  severity        String    @default("HIGH")
+  notifiedDoctor  Boolean   @default(false)
+  notifiedPatient Boolean   @default(false)
+  resolvedAt      DateTime?
+  resolvedNote    String?
+  createdAt       DateTime  @default(now())
+  patient         Patient   @relation(fields: [patientId], references: [id])
+  patientId       String
+  doctor          User      @relation(fields: [doctorId], references: [id])
+  doctorId        String
+}
+
+// ═══════════════════════════════════════════════════════════
+// SMS RESPONSE TOKEN (MADDE 7 — yanıt doğrulama)
+// ═══════════════════════════════════════════════════════════
+model ResponseToken {
+  id            String    @id @default(cuid())
+  token         String    @unique @default(cuid())
+  patientId     String
+  questionSetId String
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════
+// SMS LOG
+// ═══════════════════════════════════════════════════════════
+model SmsLog {
+  id         String   @id @default(cuid())
+  patientId  String
+  phone      String
+  message    String
+  status     String   @default("PENDING")
+  provider   String   @default("netgsm")
+  sentAt     DateTime?
+  createdAt  DateTime @default(now())
+}
+
+// ═══════════════════════════════════════════════════════════
+// DENETİM İZİ — AuditLog (MADDE 6)
+// Hiçbir kayıt SİLİNEMEZ. Minimum 10 yıl saklanır.
+// KVKK Madde 12 / Kişisel Sağlık Verisi işleme kaydı
+// ═══════════════════════════════════════════════════════════
+model AuditLog {
+  id          String    @id @default(cuid())
+
+  // Kim yaptı
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  userRole    String    // Değişen rol bile log'a yazılır
+  userEmail   String    // Kullanıcı silinse bile iz kalsın
+
+  // Ne yaptı
+  action      String    // LOGIN | LOGOUT | CREATE | READ | UPDATE | DELETE | EXPORT | ALARM_RESOLVE
+  resource    String    // patient | alert | response | user | report | system
+  resourceId  String?   // Etkilenen kaydın ID'si
+
+  // Veri değişikliği (önce/sonra)
+  beforeData  String?   // JSON — değişiklik öncesi durum
+  afterData   String?   // JSON — değişiklik sonrası durum
+
+  // Teknik bilgiler
+  ipAddress   String?
+  userAgent   String?
+  sessionId   String?
+  result      String    @default("SUCCESS") // SUCCESS | FAIL | DENIED
+
+  createdAt   DateTime  @default(now())
+
+  // NOT: Bu tabloya DELETE yetkisi hiçbir role verilmez.
+  @@index([userId, createdAt])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+}
+
+// ═══════════════════════════════════════════════════════════
+// e-NABIZ SYNC LOG (MADDE 1)
+// Hangi kayıtların e-Nabız'a gönderildiğini takip eder
+// ═══════════════════════════════════════════════════════════
+model ENabizSyncLog {
+  id            String    @id @default(cuid())
+  patientId     String
+  resourceType  String    // Observation | Patient | AllergyIntolerance
+  fhirId        String?   // e-Nabız'daki FHIR kayıt ID'si
+  status        String    @default("PENDING") // PENDING | SENT | FAILED | RETRY
+  payload       String?   // Gönderilen FHIR JSON
+  response      String?   // e-Nabız yanıtı
+  errorMessage  String?
+  retryCount    Int       @default(0)
+  sentAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([patientId, status])
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name"> Klinik Zeka</string>
+    <string name="title_activity_main"> Klinik Zeka</string>
+    <string name="package_name">com.klinikzeka.kronik</string>
+    <string name="custom_url_scheme">com.klinikzeka.kronik</string>
+</resources>
