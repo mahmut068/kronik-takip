@@ -1,0 +1,4 @@
+[build]
+  base = "kronik-takip"
+  command = "npm run build"
+  publish = ".next"
