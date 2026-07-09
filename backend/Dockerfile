@@ -29,9 +29,11 @@ COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache /wheels/*
 
 COPY ./app /app/app
+COPY ./gunicorn_conf.py /app/gunicorn_conf.py
 
 # Kodu root olmayan kullanıcıyla çalıştır (Güvenlik)
 RUN useradd -m -u 1000 appuser
 USER appuser
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Production ortamı için Gunicorn Process Manager
+CMD ["gunicorn", "-c", "gunicorn_conf.py", "app.main:app"]
