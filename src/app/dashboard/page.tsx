@@ -113,13 +113,13 @@ export default function DashboardHome() {
       </div>
 
       {/* KPI Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(230px,1fr))', gap: '16px', marginBottom: '32px' }}>
+      <div className="fast-render" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(230px,1fr))', gap: '16px', marginBottom: '32px' }}>
         {kpis.map((k, i) => <KPICard key={i} {...k} />)}
       </div>
 
       {/* V13 Futuristic Banner */}
-      <div className="animate-in delay-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
-         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #082f49 100%)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(0, 242, 254, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+      <div className="animate-in delay-2 fast-render" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '32px' }}>
+         <div className="card-animated-border" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #082f49 100%)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(0, 242, 254, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <Sparkles size={14} color="#00f2fe" />
@@ -133,7 +133,7 @@ export default function DashboardHome() {
             </Link>
          </div>
          
-         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #31102f 100%)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(168, 85, 247, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+         <div className="card-animated-border" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #31102f 100%)', borderRadius: '16px', padding: '24px', border: '1px solid rgba(168, 85, 247, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                 <Sparkles size={14} color="#a855f7" />
@@ -154,7 +154,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+      <div className="fast-render" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
 
         {/* Recent alerts */}
         <div className="card animate-in delay-4" style={{ padding: '24px', background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)' }}>

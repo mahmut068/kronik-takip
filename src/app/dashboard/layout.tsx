@@ -227,8 +227,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </aside>
 
+      {/* ══════ OFFICIAL STRIP ══════ */}
+      <div className="official-strip animate-slide-down" style={{ position: 'sticky', top: 0, zIndex: 41, justifyContent: 'center', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text)' }}>
+        <Shield size={15} color="var(--primary)" />
+        <span style={{ letterSpacing: '1px' }}>T.C. SAĞLIK BAKANLIĞI — ULUSAL KRONİK HASTALIK TAKİP AĞI</span>
+        <span style={{ opacity: 0.5 }}>|</span>
+        <span style={{ color: 'var(--primary)' }}>VIP SHOWCASE SÜRÜMÜ</span>
+      </div>
+
       {/* ══════ TOP HEADER ══════ */}
-      <header className="top-header">
+      <header className="top-header" style={{ top: '34px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Shield size={14} color="#00e5ff" />
           <span style={{ fontSize: '12px', color: '#4d6b82', fontWeight: 600 }}>
