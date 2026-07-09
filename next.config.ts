@@ -3,6 +3,13 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.226.176', 'localhost'],
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', 'bcryptjs', 'better-sqlite3'],
+    outputFileTracingIncludes: {
+      '/*': ['./prisma/dev.db'],
+      '/api/**/*': ['./prisma/dev.db'],
+    },
+  },
   outputFileTracingRoot: path.join(__dirname),
   reactStrictMode: true,
   poweredByHeader: false,
