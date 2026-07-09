@@ -17,10 +17,6 @@ export async function GET() {
   const alertFilter   = isAdmin ? {} : { doctorId: session.user!.id };
 
   try {
-    const patientIds = isAdmin
-      ? undefined
-      : (await prisma.patient.findMany({ where: patientFilter, select: { id: true } })).map(p => p.id);
-
     const responseFilter = isAdmin
       ? {}
       : { patient: { doctorId: session.user!.id } };
@@ -51,7 +47,7 @@ export async function GET() {
         take: 6,
       }),
       prisma.smsLog.findMany({
-        where: patientIds ? { patientId: { in: patientIds } } : {},
+        where: isAdmin ? {} : { patient: { doctorId: session.user!.id } },
         orderBy: { createdAt: 'desc' },
         take: 8,
       }),

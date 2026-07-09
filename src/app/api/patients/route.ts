@@ -28,10 +28,10 @@ export async function GET(req: Request) {
     ];
   }
 
-  // Durum filtresi (Kritik/Aktif/Pasif) — alert durumu subquery ile
   let whereWithFilter: any = { ...baseWhere };
   if (filter === 'Aktif')  whereWithFilter = { ...baseWhere, isActive: true };
   if (filter === 'Pasif')  whereWithFilter = { ...baseWhere, isActive: false };
+  if (filter === 'Kritik') whereWithFilter = { ...baseWhere, alerts: { some: { resolvedAt: null } } };
 
   try {
     const [total, patients] = await Promise.all([
@@ -52,13 +52,8 @@ export async function GET(req: Request) {
 
     if (total === 0) throw new Error("Trigger Mock");
 
-    let result = patients;
-    if (filter === 'Kritik') {
-      result = patients.filter(p => p.alerts.length > 0);
-    }
-
     return NextResponse.json({
-      patients: result,
+      patients,
       total,
       page,
       totalPages: Math.ceil(total / limit),

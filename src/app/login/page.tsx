@@ -17,15 +17,25 @@ export default function LoginPage() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    // Basit doğrulama ve yönlendirme (Sunum Modu)
-    setTimeout(() => {
-      if (email && password) {
-        router.push('/dashboard');
-      } else {
+    try {
+      if (!email || !password) {
         setLoading(false);
         alert('Lütfen e-posta ve şifre alanlarını doldurun.');
+        return;
       }
-    }, 800);
+      
+      const res = await signIn('credentials', { email, password, redirect: false });
+      if (res?.error) {
+        setLoading(false);
+        alert('Giriş başarısız. ' + res.error);
+        return;
+      }
+      
+      router.push('/dashboard');
+    } catch (error) {
+      setLoading(false);
+      alert('Sistem hatası oluştu.');
+    }
   };
 
   return (
@@ -42,9 +52,9 @@ export default function LoginPage() {
           <div style={{ width: '80px', height: '80px', background: '#ffffff', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', boxShadow: '0 12px 32px rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.1)' }}>
             <HeartPulse size={40} color="#2563eb" />
           </div>
-          <h1 style={{ fontSize: '36px', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-1px' }}>Klinik Zeka V11</h1>
+          <h1 style={{ fontSize: '36px', fontWeight: 800, color: '#0f172a', marginBottom: '16px', letterSpacing: '-1px' }}>SentryHealth</h1>
           <p style={{ fontSize: '16px', color: '#64748b', lineHeight: '1.6', fontWeight: 500, marginBottom: '40px' }}>
-            Sağlık profesyonelleri için geliştirilmiş, yapay zeka destekli yeni nesil hasta takip ve yönetim asistanı.
+            Yapay Zeka Destekli Erken Uyarı ve Karar Destek Sistemi
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'left' }}>
@@ -96,9 +106,8 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
-                <span>Şifre</span>
-                <a href="#" style={{ color: '#2563eb', textDecoration: 'none' }}>Şifremi Unuttum</a>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                Şifre
               </label>
               <input 
                 name="password"
@@ -114,6 +123,9 @@ export default function LoginPage() {
                 onFocus={(e) => e.target.style.borderColor = '#2563eb'}
                 onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
               />
+              <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>
+                * Şifrenizi unuttuysanız lütfen bilgi işleme başvurunuz.
+              </p>
             </div>
 
             <button 
