@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import NextAuth from 'next-auth';
 
-export async function middleware(req: NextRequest) {
-  // Edge runtime bypass: We use getToken which doesn't load Prisma/Bcrypt
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  
-  const isLoggedIn = !!token;
-  const userRole = token?.role as string | undefined;
+// Edge Runtime için hafif Auth Config (Prisma veya Bcrypt İÇERMEZ!)
+const { auth } = NextAuth({
+  providers: [], // Middleware sadece session okuyacağı için provider'a gerek yok
+  secret: process.env.AUTH_SECRET,
+});
+
+export default auth((req) => {
+  const isLoggedIn = !!req.auth;
+  const userRole = req.auth?.user?.role as string | undefined;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isDashboardRoute = req.nextUrl.pathname.startsWith('/dashboard');
   const isAdminRoute = req.nextUrl.pathname.startsWith('/dashboard/admin') || req.nextUrl.pathname.startsWith('/api/admin');
@@ -31,7 +33,7 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
