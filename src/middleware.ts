@@ -1,9 +1,16 @@
 import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 
 // Edge Runtime için hafif Auth Config (Prisma veya Bcrypt İÇERMEZ!)
 const { auth } = NextAuth({
-  providers: [], // Middleware sadece session okuyacağı için provider'a gerek yok
+  providers: [
+    Credentials({
+      name: 'credentials',
+      credentials: {},
+      authorize: async () => null,
+    })
+  ], // NextAuth expects at least one provider to not throw Configuration error
   secret: process.env.AUTH_SECRET,
 });
 
