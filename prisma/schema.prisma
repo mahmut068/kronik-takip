@@ -39,6 +39,10 @@ model User {
   patients            Patient[]
   alerts              Alert[]
   auditLogs           AuditLog[]
+
+  // Performans İndeksleri
+  @@index([role])
+  @@index([isActive])
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -77,6 +81,12 @@ model Patient {
   questionSets   QuestionSet[]
   responses      PatientResponse[]
   alerts         Alert[]
+
+  // Performans İndeksleri
+  @@index([doctorId])
+  @@index([isActive])
+  @@index([createdAt])
+  @@index([disease])
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -126,6 +136,10 @@ model PatientResponse {
   patientId      String
   question       Question  @relation(fields: [questionId], references: [id])
   questionId     String
+
+  // Performans İndeksleri
+  @@index([patientId])
+  @@index([respondedAt])
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -146,6 +160,12 @@ model Alert {
   patientId       String
   doctor          User      @relation(fields: [doctorId], references: [id])
   doctorId        String
+
+  // Performans İndeksleri
+  @@index([doctorId])
+  @@index([patientId])
+  @@index([resolvedAt])
+  @@index([severity])
 }
 
 // ═══════════════════════════════════════════════════════════

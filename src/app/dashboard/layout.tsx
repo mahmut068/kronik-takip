@@ -80,8 +80,24 @@ const NAV_SECTIONS = [
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // SUNUM MODU BYPASS
-  const session = { user: { name: 'Dr. Admin' } };
+  const session = await auth();
+  if (!session) {
+    redirect('/login');
+  }
+
+  const userRole = (session.user as any)?.role || 'DOCTOR';
+  const isAdmin = userRole === 'ADMIN';
+
+  // Sadece ADMIN için Doktor Yönetimini Ekle
+  const dynamicNavSections = [...NAV_SECTIONS];
+  if (isAdmin) {
+    dynamicNavSections.push({
+      label: 'Yönetim Merkezi',
+      items: [
+        { href: '/dashboard/admin/doctors', icon: Users, label: 'Doktor Yönetimi', badge: 'admin' },
+      ]
+    });
+  }
 
   const initial = (session.user?.name?.[0] || 'D').toUpperCase();
 
@@ -127,7 +143,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           {/* Nav */}
           <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
-            {NAV_SECTIONS.map((section) => (
+            {dynamicNavSections.map((section) => (
               <div key={section.label} style={{ marginBottom: '4px' }}>
                 <div className="nav-section-title" style={{ marginTop: '16px' }}>
                   {section.label}
@@ -171,6 +187,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
                       )}
                       {item.badge === 'ai' && (
                         <div style={{ fontSize: '9px', padding: '2px 6px', background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', border: '1px solid #c084fc', fontWeight: 800, borderRadius: '4px' }}>YZ</div>
+                      )}
+                      {item.badge === 'admin' && (
+                        <div style={{ fontSize: '9px', padding: '2px 6px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', fontWeight: 800, borderRadius: '4px' }}>YETKİLİ</div>
                       )}
                     </Link>
                   );
@@ -216,7 +235,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#e2f0f9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {session.user?.name || 'Doktor'}
               </div>
-              <div style={{ fontSize: '11px', color: '#4d6b82' }}>Klinik Yönetici</div>
+              <div style={{ fontSize: '11px', color: '#4d6b82' }}>{isAdmin ? 'Sistem Yöneticisi' : 'Klinik Doktoru'}</div>
             </div>
           </div>
 
