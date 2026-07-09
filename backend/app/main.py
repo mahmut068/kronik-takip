@@ -1,12 +1,17 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import time
+from app.core.config import settings
+from app.api.v1.api import api_router
 
 app = FastAPI(
-    title="SentryHealth API",
+    title=settings.PROJECT_NAME,
     description="Yüksek Performanslı ve Çökme Korumalı Sağlık Verisi Backend Mimarisi",
-    version="1.0.0"
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
+
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # Global Exception Handler (Kritik Hata Yalıtımı)
 @app.exception_handler(Exception)
