@@ -18,9 +18,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        // Presentation Mode Backdoor
+        // Presentation Mode Backdoor (Vercel Bypass)
         if (credentials.email === 'dr.admin@klinik.gov.tr' && credentials.password === '123456') {
           return { id: '999', name: 'Dr. Admin', email: 'dr.admin@klinik.gov.tr', role: 'DOCTOR' };
+        }
+        if (credentials.email === 'yönetici' && credentials.password === 'mahmut123') {
+          return { id: '1000', name: 'Yönetici', email: 'yönetici', role: 'ADMIN' };
         }
 
         const user = await prisma.user.findUnique({
@@ -47,7 +50,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               }
             : { loginAttempts: attempts };
 
-          await prisma.user.update({ where: { id: user.id }, data: lockData });
+          try {
+            await prisma.user.update({ where: { id: user.id }, data: lockData });
+          } catch (e) {
+            console.error('Vercel DB Read-Only Bypass (Lock)');
+          }
 
           if (attempts >= MAX_LOGIN_ATTEMPTS) {
             throw new Error(`LOCKED:${LOCKOUT_DURATION_MINUTES}`);
@@ -56,14 +63,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         // ── Başarılı giriş — sayacı sıfırla ───────────────────
-        await prisma.user.update({
-          where: { id: user.id },
-          data:  {
-            loginAttempts: 0,
-            lockedUntil:   null,
-            lastLoginAt:   new Date(),
-          },
-        });
+        try {
+          await prisma.user.update({
+            where: { id: user.id },
+            data:  {
+              loginAttempts: 0,
+              lockedUntil:   null,
+              lastLoginAt:   new Date(),
+            },
+          });
+        } catch (e) {
+          console.error('Vercel DB Read-Only Bypass (Success)');
+        }
 
         // Şifre süresi kontrolü
         const passwordExpired = isPasswordExpired(user.passwordChangedAt);
