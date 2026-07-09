@@ -17,8 +17,24 @@ async function main() {
       specialty: 'Kardiyoloji'
     },
   });
+
+  // Sahte Hastalar Ekle
+  const patientNames = ['Ahmet Yılmaz', 'Ayşe Kaya', 'Mehmet Demir', 'Mustafa Çelik', 'Yusuf Can'];
+  const diseases = ['Hipertansiyon', 'Diyabet', 'Kalp Yetmezliği', 'Astım', 'KOAH'];
   
-  console.log({ user });
+  for (let i = 0; i < 5; i++) {
+    await prisma.patient.create({
+      data: {
+        name: patientNames[i],
+        phone: `555123456${i}`,
+        disease: diseases[i],
+        thresholdValue: 120 + i * 5,
+        doctorId: user.id,
+      }
+    });
+  }
+  
+  console.log('Seed başarılı: Kullanıcı ve 5 adet hasta eklendi.');
 }
 
 main()
