@@ -8,6 +8,8 @@ import {
 } from '@/lib/password-policy';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || "sentryhealth-secure-secret-key-for-development",
+  trustHost: true,
   providers: [
     Credentials({
       name: 'credentials',

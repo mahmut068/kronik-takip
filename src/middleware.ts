@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
-// Edge Runtime için hafif Auth Config (Prisma veya Bcrypt İÇERMEZ!)
+// Vercel Edge Runtime için güvenli yapılandırma
 const { auth } = NextAuth({
   providers: [
     Credentials({
@@ -10,8 +10,9 @@ const { auth } = NextAuth({
       credentials: {},
       authorize: async () => null,
     })
-  ], // NextAuth expects at least one provider to not throw Configuration error
-  secret: process.env.AUTH_SECRET,
+  ],
+  secret: process.env.AUTH_SECRET || "sentryhealth-secure-secret-key-for-development",
+  trustHost: true, // Vercel için zorunlu (Host başlıklarını güvenli kabul et)
 });
 
 export default auth((req) => {
