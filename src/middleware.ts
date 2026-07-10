@@ -1,23 +1,15 @@
 import { NextResponse } from 'next/server';
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import type { NextRequest } from 'next/server';
 
-// Vercel Edge Runtime için güvenli yapılandırma
-const { auth } = NextAuth({
-  providers: [
-    Credentials({
-      name: 'credentials',
-      credentials: {},
-      authorize: async () => null,
-    })
-  ],
-  secret: process.env.AUTH_SECRET || "sentryhealth-secure-secret-key-for-development",
-  trustHost: true, // Vercel için zorunlu (Host başlıklarını güvenli kabul et)
-});
-
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const userRole = req.auth?.user?.role as string | undefined;
+export function middleware(req: NextRequest) {
+  // Edge runtime'da NextAuth çökmesini önlemek için çerezleri manuel kontrol ediyoruz
+  const hasSession = 
+    req.cookies.has('authjs.session-token') || 
+    req.cookies.has('__Secure-authjs.session-token') ||
+    req.cookies.has('next-auth.session-token') ||
+    req.cookies.has('__Secure-next-auth.session-token');
+    
+  const isLoggedIn = hasSession;
   const isApiRoute = req.nextUrl.pathname.startsWith('/api');
   const isDashboardRoute = req.nextUrl.pathname.startsWith('/dashboard');
   const isAdminRoute = req.nextUrl.pathname.startsWith('/dashboard/admin') || req.nextUrl.pathname.startsWith('/api/admin');
@@ -32,16 +24,11 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/login', req.nextUrl));
   }
 
-  // Sadece ADMIN Yetkisi Olanlar Admin Rotasına Girebilir
-  if (isAdminRoute && userRole !== 'ADMIN') {
-    if (isApiRoute) {
-       return NextResponse.json({ error: 'Yetersiz Yetki' }, { status: 403 });
-    }
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
-  }
-
+  // Admin kontrolünü sayfa bazlı yüklemeye (Client/Server Component) bırakıyoruz, 
+  // Middleware'de sadece genel oturum kontrolü yapıyoruz ki çökme olmasın.
+  
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
